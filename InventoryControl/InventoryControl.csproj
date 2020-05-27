@@ -134,6 +134,7 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\InventoryPartsController.cs" />
     <Compile Include="DAL\InventoryContext.cs" />
     <Compile Include="DAL\InventoryInitializer.cs" />
     <Compile Include="DAL\Repository\BaseRepository.cs" />
@@ -180,6 +181,11 @@
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\InventoryParts\Create.cshtml" />
+    <Content Include="Views\InventoryParts\Delete.cshtml" />
+    <Content Include="Views\InventoryParts\Details.cshtml" />
+    <Content Include="Views\InventoryParts\Edit.cshtml" />
+    <Content Include="Views\InventoryParts\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

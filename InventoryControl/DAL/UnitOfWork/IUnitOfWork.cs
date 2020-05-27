@@ -11,6 +11,7 @@ namespace InventoryControl.DAL.UnitOfWork
 	public interface IUnitOfWork
 	{
 		IRepository<InventoryPart> InventoryParts { get; }
-	//	void Commit();
+		void Commit();
+		void Dispose();
 	}
 }

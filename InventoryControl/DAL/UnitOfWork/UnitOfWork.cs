@@ -36,9 +36,14 @@ namespace InventoryControl.DAL.UnitOfWork
 			}
 		}
 
-		//public void Commit()
-		//{
-		//	_dbContext.SaveChanges();
-		//}
+		public void Commit()
+		{
+			_dbContext.SaveChanges();
+		}
+
+		public void Dispose()
+		{
+			_dbContext.Dispose();
+		}
 	}
 }
