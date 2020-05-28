@@ -4,10 +4,10 @@
     ViewBag.Title = "Details";
 }
 
-<h2>Details</h2>
+<h2>@Resources.InventoryRes.Action_ViewDetails</h2>
 
 <div>
-    <h4>InventoryPart</h4>
+    <h4>@Resources.InventoryRes.Title_InventoryItem</h4>
     <hr />
     <dl class="dl-horizontal">
         <dt>
@@ -45,6 +45,6 @@
     </dl>
 </div>
 <p>
-    @Html.ActionLink("Edit", "Edit", new { id = Model.ID }) |
-    @Html.ActionLink("Back to List", "Index")
+    @Html.ActionLink(Resources.InventoryRes.Action_Edit, "Edit", new { id = Model.ID }) |
+    @Html.ActionLink(Resources.InventoryRes.Action_BackToList, "Index")
 </p>

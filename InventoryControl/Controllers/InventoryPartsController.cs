@@ -13,7 +13,7 @@ using InventoryControl.Utilities;
 
 namespace InventoryControl.Controllers
 {
-	public class InventoryPartsController : Controller
+	public class InventoryPartsController : BaseController
 	{
 		private readonly UnitOfWork unitOfWork;
 
@@ -23,7 +23,11 @@ namespace InventoryControl.Controllers
 			this.unitOfWork = new UnitOfWork(db);
 		}
 
-		// GET: InventoryParts
+		// GET: InventoryParts		
+		/// <summary>
+		/// Returns the entire list of inventory items.
+		/// </summary>
+		/// <returns></returns>
 		public ActionResult Index()
 		{
 			Log.Info("view list");
@@ -31,7 +35,12 @@ namespace InventoryControl.Controllers
 			return View(InventoryParts.ToList());
 		}
 
-		// GET: InventoryParts/Details/5
+		// GET: InventoryParts/Details/5		
+		/// <summary>
+		/// Returns the inventory item specified by the id.
+		/// </summary>
+		/// <param name="id">The identifier.</param>
+		/// <returns></returns>
 		public ActionResult Details(int? id)
 		{
 			if(id == null)
@@ -48,15 +57,22 @@ namespace InventoryControl.Controllers
 			return View(inventoryPart);
 		}
 
-		// GET: InventoryParts/Create
+		// GET: InventoryParts/Create		
+		/// <summary>
+		/// Returns the create inventory item view.
+		/// </summary>
+		/// <returns></returns>
 		public ActionResult Create()
 		{
 			return View();
 		}
 
-		// POST: InventoryParts/Create
-		// To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-		// more details see https://go.microsoft.com/fwlink/?LinkId=317598.
+		// POST: InventoryParts/Create		
+		/// <summary>
+		/// Creates the specified inventory part.
+		/// </summary>
+		/// <param name="inventoryPart">The inventory part.</param>
+		/// <returns></returns>
 		[HttpPost]
 		[ValidateAntiForgeryToken]
 		public ActionResult Create([Bind(Include = "ID,Name,AvailabeNoOfUnits,ReorderLevel,UnitPrice")] InventoryPart inventoryPart)
@@ -71,7 +87,12 @@ namespace InventoryControl.Controllers
 			return View(inventoryPart);
 		}
 
-		// GET: InventoryParts/Edit/5
+		// GET: InventoryParts/Edit/5		
+		/// <summary>
+		/// Edits the inventory item specified by the id.
+		/// </summary>
+		/// <param name="id">The identifier.</param>
+		/// <returns></returns>
 		public ActionResult Edit(int? id)
 		{
 			if(id == null)
@@ -88,9 +109,12 @@ namespace InventoryControl.Controllers
 			return View(inventoryPart);
 		}
 
-		// POST: InventoryParts/Edit/5
-		// To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-		// more details see https://go.microsoft.com/fwlink/?LinkId=317598.
+		// POST: InventoryParts/Edit/5		
+		/// <summary>
+		/// Edits the specified inventory part.
+		/// </summary>
+		/// <param name="inventoryPart">The inventory part.</param>
+		/// <returns></returns>
 		[HttpPost]
 		[ValidateAntiForgeryToken]
 		public ActionResult Edit([Bind(Include = "ID,Name,AvailabeNoOfUnits,ReorderLevel,UnitPrice")] InventoryPart inventoryPart)
@@ -104,7 +128,12 @@ namespace InventoryControl.Controllers
 			return View(inventoryPart);
 		}
 
-		// GET: InventoryParts/Delete/5
+		// GET: InventoryParts/Delete/5		
+		/// <summary>
+		/// Returns the specified item to be deleted.
+		/// </summary>
+		/// <param name="id">The identifier.</param>
+		/// <returns></returns>
 		public ActionResult Delete(int? id)
 		{
 			if(id == null)
@@ -121,7 +150,12 @@ namespace InventoryControl.Controllers
 			return View(inventoryPart);
 		}
 
-		// POST: InventoryParts/Delete/5
+		// POST: InventoryParts/Delete/5		
+		/// <summary>
+		/// Deletes the inventory item once confirmed.
+		/// </summary>
+		/// <param name="id">The identifier.</param>
+		/// <returns></returns>
 		[HttpPost, ActionName("Delete")]
 		[ValidateAntiForgeryToken]
 		public ActionResult DeleteConfirmed(int id)

@@ -7,8 +7,12 @@ using InventoryControl.Utilities;
 
 namespace InventoryControl.Controllers
 {
-	public class HomeController : Controller
+	public class HomeController : BaseController
 	{
+		/// <summary>
+		/// Returns the home page.
+		/// </summary>
+		/// <returns></returns>
 		public ActionResult Index()
 		{
 			Log.Info("Navigate to home page");

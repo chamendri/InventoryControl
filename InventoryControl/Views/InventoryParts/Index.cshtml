@@ -1,13 +1,13 @@
 ﻿@model IEnumerable<InventoryControl.Models.InventoryItems.InventoryPart>
 
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "InventoryItems";
 }
 
-<h2>Index</h2>
+<h2>@Resources.InventoryRes.Title_InventoryItemList</h2>
 
 <p>
-    @Html.ActionLink("Create New", "Create")
+    @Html.ActionLink(Resources.InventoryRes.Action_CreateNew, "Create")
 </p>
 <table class="table">
     <tr>
@@ -41,9 +41,9 @@
             @Html.DisplayFor(modelItem => item.UnitPrice)
         </td>
         <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.ID }) |
-            @Html.ActionLink("Details", "Details", new { id=item.ID }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.ID })
+            @Html.ActionLink(Resources.InventoryRes.Action_Edit, "Edit", new { id=item.ID }) |
+            @Html.ActionLink(Resources.InventoryRes.Action_ViewDetails, "Details", new { id=item.ID }) |
+            @Html.ActionLink(Resources.InventoryRes.Action_Delete, "Delete", new { id=item.ID })
         </td>
     </tr>
 }
