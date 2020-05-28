@@ -8,6 +8,9 @@ using InventoryControl.Models.InventoryItems;
 
 namespace InventoryControl.DAL.UnitOfWork
 {
+	/// <summary>
+	/// contains the definition of unit of work
+	/// </summary>
 	public interface IUnitOfWork
 	{
 		IRepository<InventoryPart> InventoryParts { get; }

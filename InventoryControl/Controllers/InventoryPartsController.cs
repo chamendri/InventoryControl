@@ -9,6 +9,7 @@ using System.Web.Mvc;
 using InventoryControl.DAL;
 using InventoryControl.DAL.UnitOfWork;
 using InventoryControl.Models.InventoryItems;
+using InventoryControl.Utilities;
 
 namespace InventoryControl.Controllers
 {
@@ -25,6 +26,7 @@ namespace InventoryControl.Controllers
 		// GET: InventoryParts
 		public ActionResult Index()
 		{
+			Log.Info("view list");
 			var InventoryParts = this.unitOfWork.InventoryParts.Get();
 			return View(InventoryParts.ToList());
 		}
@@ -34,11 +36,13 @@ namespace InventoryControl.Controllers
 		{
 			if(id == null)
 			{
+				Log.Error("Input is empty");
 				return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
 			}
 			InventoryPart inventoryPart = this.unitOfWork.InventoryParts.GetByID(id);
 			if(inventoryPart == null)
 			{
+				Log.Error($"Record for id :{id} not found.");
 				return HttpNotFound();
 			}
 			return View(inventoryPart);
@@ -72,11 +76,13 @@ namespace InventoryControl.Controllers
 		{
 			if(id == null)
 			{
+				Log.Error("Input value is empty.");
 				return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
 			}
 			InventoryPart inventoryPart = this.unitOfWork.InventoryParts.GetByID(id);
 			if(inventoryPart == null)
 			{
+				Log.Error($"Record for id :{id} not found.");
 				return HttpNotFound();
 			}
 			return View(inventoryPart);
@@ -103,11 +109,13 @@ namespace InventoryControl.Controllers
 		{
 			if(id == null)
 			{
+				Log.Error("Input value is empty.");
 				return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
 			}
 			InventoryPart inventoryPart = this.unitOfWork.InventoryParts.GetByID(id);
 			if(inventoryPart == null)
 			{
+				Log.Error($"Record for id :{id} not found.");
 				return HttpNotFound();
 			}
 			return View(inventoryPart);
@@ -124,6 +132,10 @@ namespace InventoryControl.Controllers
 			return RedirectToAction("Index");
 		}
 
+		/// <summary>
+		/// Releases unmanaged resources and optionally releases managed resources.
+		/// </summary>
+		/// <param name="disposing">true to release both managed and unmanaged resources; false to release only unmanaged resources.</param>
 		protected override void Dispose(bool disposing)
 		{
 			if(disposing)

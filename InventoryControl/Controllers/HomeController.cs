@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using InventoryControl.Utilities;
 
 namespace InventoryControl.Controllers
 {
@@ -10,6 +11,7 @@ namespace InventoryControl.Controllers
 	{
 		public ActionResult Index()
 		{
+			Log.Info("Navigate to home page");
 			return View();
 		}
 	}
