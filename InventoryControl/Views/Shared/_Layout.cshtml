@@ -20,12 +20,16 @@
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav navbar-left">
-                    <li class="a">@Html.ActionLink(Resources.GlobalRes.Title_Home, "Index", "Home")</li>
-                    <li>@Html.ActionLink(Resources.GlobalRes.Title_Inventory, "Index", "InventoryParts")</li>
-                </ul>
+                    @if(User.Identity.IsAuthenticated)
+                    {
+                        <li class="a">@Html.ActionLink(Resources.GlobalRes.Title_Home, "Index", "Home")</li>
+                        <li>@Html.ActionLink(Resources.GlobalRes.Title_Inventory, "Index", "InventoryParts")</li>
+                    }
+                    </ul>
                 <ul class="nav navbar-nav navbar-right">
                     @Url.LangSwitcher("English", ViewContext.RouteData, "en")
                     @Url.LangSwitcher("Norsk", ViewContext.RouteData, "no")
+                    @Html.Partial("_LoginPartial")
                 </ul>
             </div>
         </div>
