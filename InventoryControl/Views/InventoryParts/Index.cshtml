@@ -1,4 +1,6 @@
-﻿@model IEnumerable<InventoryControl.Models.InventoryItems.InventoryPart>
+﻿@model PagedList.IPagedList<InventoryControl.Models.InventoryItems.InventoryPart>
+@using PagedList.Mvc;
+<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
 
 @{
     ViewBag.Title = "InventoryItems";
@@ -9,43 +11,56 @@
 <p>
     @Html.ActionLink(Resources.InventoryRes.Action_CreateNew, "Create")
 </p>
+@using(Html.BeginForm())
+{
+    <p>
+        @Resources.InventoryRes.Labe_FindByName : @Html.TextBox("SearchString")
+        <input type="submit" value=@Resources.InventoryRes.Action_Search />
+    </p>
+}
 <table class="table">
     <tr>
         <th>
-            @Html.DisplayNameFor(model => model.Name)
+            @Html.ActionLink(Resources.InventoryRes.Label_Name, "Index", new { sortOrder = ViewBag.NameSortParm, currentFilter = ViewBag.CurrentFilte })
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.AvailabeNoOfUnits)
+            @Html.ActionLink(Resources.InventoryRes.Label_AvailabeNoOfUnits, "Index", new { sortOrder = ViewBag.AvailabelNoOfUnitsSortParam, currentFilter = ViewBag.CurrentFilter })
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.ReorderLevel)
+            @Html.ActionLink(Resources.InventoryRes.Label_ReorderLevel, "Index", new { sortOrder = ViewBag.ReorderLevelSortParam, currentFilter = ViewBag.CurrentFilter })
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.UnitPrice)
+            @Html.ActionLink(Resources.InventoryRes.Label_UnitPrice, "Index", new { sortOrder = ViewBag.UnitPriceSortParam, currentFilter = ViewBag.CurrentFilter })
         </th>
         <th></th>
     </tr>
 
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.Name)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.AvailabeNoOfUnits)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.ReorderLevel)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.UnitPrice)
-        </td>
-        <td>
-            @Html.ActionLink(Resources.InventoryRes.Action_Edit, "Edit", new { id=item.ID }) |
-            @Html.ActionLink(Resources.InventoryRes.Action_ViewDetails, "Details", new { id=item.ID }) |
-            @Html.ActionLink(Resources.InventoryRes.Action_Delete, "Delete", new { id=item.ID })
-        </td>
-    </tr>
-}
+    @foreach(var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AvailabeNoOfUnits)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ReorderLevel)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UnitPrice)
+            </td>
+            <td>
+                @Html.ActionLink(Resources.InventoryRes.Action_Edit, "Edit", new { id = item.ID }) |
+                @Html.ActionLink(Resources.InventoryRes.Action_ViewDetails, "Details", new { id = item.ID }) |
+                @Html.ActionLink(Resources.InventoryRes.Action_Delete, "Delete", new { id = item.ID })
+            </td>
+        </tr>
+    }
 
 </table>
+
+<br />
+@Resources.GlobalRes.Label_Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) @Resources.GlobalRes.Label_Of @Model.PageCount
+@Html.PagedListPager(Model, page => Url.Action("Index",
+    new { page, sortOrder = ViewBag.CurrentSort, currentFilter = ViewBag.CurrentFilter }))

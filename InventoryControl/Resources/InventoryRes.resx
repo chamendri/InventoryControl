@@ -165,10 +165,16 @@
   <data name="Label_UnitPrice" xml:space="preserve">
     <value>Unit Price</value>
   </data>
+  <data name="Labe_FindByName" xml:space="preserve">
+    <value>Find by name</value>
+  </data>
   <data name="Title_InventoryItem" xml:space="preserve">
     <value>Inventory Item</value>
   </data>
   <data name="Title_InventoryItemList" xml:space="preserve">
     <value>Inventory Items</value>
+  </data>
+  <data name="Action_Search" xml:space="preserve">
+    <value>Search</value>
   </data>
 </root>

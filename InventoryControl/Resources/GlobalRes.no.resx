@@ -123,6 +123,12 @@
   <data name="Label_Logout" xml:space="preserve">
     <value>Logg ut</value>
   </data>
+  <data name="Label_Of" xml:space="preserve">
+    <value>av</value>
+  </data>
+  <data name="Label_Page" xml:space="preserve">
+    <value>side</value>
+  </data>
   <data name="Title_Home" xml:space="preserve">
     <value>Hjem</value>
   </data>

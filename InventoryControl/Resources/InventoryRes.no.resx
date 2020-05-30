@@ -165,10 +165,16 @@
   <data name="Label_UnitPrice" xml:space="preserve">
     <value>Enhetspris</value>
   </data>
+  <data name="Labe_FindByName" xml:space="preserve">
+    <value>Finn etter navn</value>
+  </data>
   <data name="Title_InventoryItem" xml:space="preserve">
     <value>Varebeholdning</value>
   </data>
   <data name="Title_InventoryItemList" xml:space="preserve">
     <value>Varelager</value>
+  </data>
+  <data name="Action_Search" xml:space="preserve">
+    <value>Søk</value>
   </data>
 </root>

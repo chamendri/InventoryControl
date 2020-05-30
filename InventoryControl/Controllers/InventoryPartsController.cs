@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
@@ -10,6 +11,7 @@ using InventoryControl.DAL;
 using InventoryControl.DAL.UnitOfWork;
 using InventoryControl.Models.InventoryItems;
 using InventoryControl.Utilities;
+using PagedList;
 
 namespace InventoryControl.Controllers
 {
@@ -39,11 +41,61 @@ namespace InventoryControl.Controllers
 		/// Returns the entire list of inventory items.
 		/// </summary>
 		/// <returns></returns>
-		public ActionResult Index()
+		public ActionResult Index(string sortOrder, string currentFilter, string searchString, int? page)
 		{
-			Log.Info("view list");
-			var InventoryParts = this.unitOfWork.InventoryParts.Get();
-			return View(InventoryParts.ToList());
+			ViewBag.CurrentSort = sortOrder;
+			ViewBag.NameSortParm = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+			ViewBag.UnitPriceSortParam = sortOrder == "unit_price" ? "unit_price_desc" : 
+				"unit_price";
+			ViewBag.AvailabelNoOfUnitsSortParam = sortOrder == "availabel_no_of_units" ?
+				"availabel_no_of_units_desc" : "availabel_no_of_units";
+			ViewBag.ReorderLevelSortParam = sortOrder == "reorder_level" ? "reorder_level_desc" :
+				"reorder_level";
+
+			if(searchString != null)
+			{
+				page = 1;
+			}
+			else
+			{
+				searchString = currentFilter;
+			}
+
+			int pageSize = 5;
+			int pageNumber = (page ?? 1);
+
+			ViewBag.CurrentFilter = searchString;
+
+			IEnumerable<InventoryPart> InventoryParts = null;
+
+			switch(sortOrder)
+			{
+				case "name_desc":
+					InventoryParts = this.GetInventoryPartist(searchString, q => q.OrderByDescending(d => d.Name));
+					break;
+				case "unit_price":
+					InventoryParts = this.GetInventoryPartist(searchString, q => q.OrderBy(d => d.UnitPrice));
+					break;
+				case "unit_price_desc":
+					InventoryParts = this.GetInventoryPartist(searchString, q => q.OrderByDescending(d => d.UnitPrice));
+					break;
+				case "reorder_level":
+					InventoryParts = this.GetInventoryPartist(searchString, q => q.OrderBy(d => d.ReorderLevel));
+					break;
+				case "reorder_level_desc":
+					InventoryParts = this.GetInventoryPartist(searchString, q => q.OrderByDescending(d => d.ReorderLevel));
+					break;
+				case "availabel_no_of_units":
+					InventoryParts = this.GetInventoryPartist(searchString, q => q.OrderBy(d => d.AvailabeNoOfUnits));
+					break;
+				case "availabel_no_of_units_desc":
+					InventoryParts = this.GetInventoryPartist(searchString, q => q.OrderByDescending(d => d.AvailabeNoOfUnits));
+					break;
+				default:
+					InventoryParts = this.GetInventoryPartist(searchString, q => q.OrderBy(d => d.Name));
+					break;
+			}
+			return View(InventoryParts.ToPagedList(pageNumber, pageSize));
 		}
 
 		// GET: InventoryParts/Details/5		
@@ -196,6 +248,21 @@ namespace InventoryControl.Controllers
 				this.unitOfWork.Dispose();
 			}
 			base.Dispose(disposing);
+		}
+
+		private IEnumerable<InventoryPart> GetInventoryPartist(String searchString,
+			Func<IQueryable<InventoryPart>, IOrderedQueryable<InventoryPart>> orderBy = null)
+		{
+			IEnumerable<InventoryPart> InventoryParts = null;
+			if(!String.IsNullOrEmpty(searchString))
+			{
+				InventoryParts = this.unitOfWork.InventoryParts.Get(s => s.Name.Contains(searchString), orderBy: orderBy);
+			}
+			else
+			{
+				InventoryParts = this.unitOfWork.InventoryParts.Get(orderBy: orderBy);
+			}
+			return InventoryParts;
 		}
 	}
 }
