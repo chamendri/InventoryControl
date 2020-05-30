@@ -124,6 +124,15 @@ namespace Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Search.
+        /// </summary>
+        public static string Action_Search {
+            get {
+                return ResourceManager.GetString("Action_Search", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Details.
         /// </summary>
         public static string Action_ViewDetails {
@@ -165,6 +174,15 @@ namespace Resources {
         public static string Error_UnitPriceMandatory {
             get {
                 return ResourceManager.GetString("Error_UnitPriceMandatory", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Find by name.
+        /// </summary>
+        public static string Labe_FindByName {
+            get {
+                return ResourceManager.GetString("Labe_FindByName", resourceCulture);
             }
         }
         

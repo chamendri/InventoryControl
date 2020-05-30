@@ -30,7 +30,7 @@ namespace InventoryControl.Tests.Controllers
 
 			InventoryPartsController controller 
 				= new InventoryPartsController(mockDbContext.Object);
-			ViewResult result = controller.Index() as ViewResult;
+			ViewResult result = controller.Index("name_desc", "", "", null) as ViewResult;
 			Assert.IsNotNull(result);
 			Assert.AreEqual(1, ((List<InventoryPart>) result.Model).Count);
 		}
@@ -48,7 +48,7 @@ namespace InventoryControl.Tests.Controllers
 
 			InventoryPartsController controller
 				= new InventoryPartsController(mockDbContext.Object);
-			ViewResult result = controller.Index() as ViewResult;
+			ViewResult result = controller.Index("name_desc", "", "", null) as ViewResult;
 			Assert.IsNotNull(result);
 			Assert.AreEqual(0, ((List<InventoryPart>) result.Model).Count);
 		}
