@@ -13,6 +13,7 @@ using InventoryControl.Utilities;
 
 namespace InventoryControl.Controllers
 {
+	[Authorize]
 	public class InventoryPartsController : BaseController
 	{
 		private readonly UnitOfWork unitOfWork;
@@ -21,6 +22,16 @@ namespace InventoryControl.Controllers
 		{
 			InventoryContext db = new InventoryContext();
 			this.unitOfWork = new UnitOfWork(db);
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="InventoryPartsController"/> class.
+		/// Introduced for the purpose of unit testing.
+		/// </summary>
+		/// <param name="unitOfWork">The unit of work.</param>
+		public InventoryPartsController(InventoryContext context)
+		{
+			this.unitOfWork = new UnitOfWork(context);
 		}
 
 		// GET: InventoryParts		
@@ -161,9 +172,17 @@ namespace InventoryControl.Controllers
 		public ActionResult DeleteConfirmed(int id)
 		{
 			InventoryPart inventoryPart = this.unitOfWork.InventoryParts.GetByID(id);
-			this.unitOfWork.InventoryParts.Delete(inventoryPart);
-			this.unitOfWork.Commit();
-			return RedirectToAction("Index");
+			if(inventoryPart == null)
+			{
+				Log.Error($"Record for id :{id} not found.");
+				return HttpNotFound();
+			}
+			else
+			{
+				this.unitOfWork.InventoryParts.Delete(inventoryPart);
+				this.unitOfWork.Commit();
+				return RedirectToAction("Index");
+			}
 		}
 
 		/// <summary>

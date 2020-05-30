@@ -14,7 +14,7 @@ namespace InventoryControl.DAL
 		{
 		}
 
-		public DbSet<InventoryPart> InventoryParts { get; set; }
+		public virtual DbSet<InventoryPart> InventoryParts { get; set; }
 
 		protected override void OnModelCreating(DbModelBuilder modelBuilder)
 		{

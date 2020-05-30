@@ -3,7 +3,7 @@
     <text>
         <ul class="nav navbar-nav navbar-right">
             <li>
-                @Html.ActionLink("Sign out", "SignOut", "Access")
+                @Html.ActionLink(Resources.GlobalRes.Label_Logout, "SignOut", "Access")
             </li>
         </ul>
     </text>
@@ -11,7 +11,7 @@
 else
 {
     <ul class="nav navbar-nav navbar-right">
-        <li>@Html.ActionLink("Sign in", "SignIn", "Access", 
+        <li>@Html.ActionLink(Resources.GlobalRes.Label_Login, "SignIn", "Access", 
            routeValues: null, htmlAttributes: new { id = "loginLink" })</li>
     </ul>
 }
