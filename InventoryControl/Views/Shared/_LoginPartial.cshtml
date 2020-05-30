@@ -1,0 +1,17 @@
+﻿@if(Request.IsAuthenticated)
+{
+    <text>
+        <ul class="nav navbar-nav navbar-right">
+            <li>
+                @Html.ActionLink(Resources.GlobalRes.Label_Logout, "SignOut", "Access")
+            </li>
+        </ul>
+    </text>
+}
+else
+{
+    <ul class="nav navbar-nav navbar-right">
+        <li>@Html.ActionLink(Resources.GlobalRes.Label_Login, "SignIn", "Access", 
+           routeValues: null, htmlAttributes: new { id = "loginLink" })</li>
+    </ul>
+}

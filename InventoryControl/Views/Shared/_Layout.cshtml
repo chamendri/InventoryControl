@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+﻿@using InventoryControl.Utilities
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inventory Control</title>
+    <title>@Resources.GlobalRes.Title_InventoryControl</title>
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
 </head>
@@ -16,12 +17,19 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                @*@Html.ActionLink("Inventory Control", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })*@
             </div>
             <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
-                    <li>@Html.ActionLink("Home", "Index", "Home")</li>
-                    <li>@Html.ActionLink("Inventory", "About", "Home")</li>
+                <ul class="nav navbar-nav navbar-left">
+                    @if(User.Identity.IsAuthenticated)
+                    {
+                        <li class="a">@Html.ActionLink(Resources.GlobalRes.Title_Home, "Index", "Home")</li>
+                        <li>@Html.ActionLink(Resources.GlobalRes.Title_Inventory, "Index", "InventoryParts")</li>
+                    }
+                    </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    @Url.LangSwitcher("English", ViewContext.RouteData, "en")
+                    @Url.LangSwitcher("Norsk", ViewContext.RouteData, "no")
+                    @Html.Partial("_LoginPartial")
                 </ul>
             </div>
         </div>
@@ -30,7 +38,7 @@
         @RenderBody()
         <hr />
         <footer>
-            <p>&copy; @DateTime.Now.Year - Inventory Control</p>
+            <p>&copy; @DateTime.Now.Year - @Resources.GlobalRes.Title_InventoryControl</p>
         </footer>
     </div>
 
