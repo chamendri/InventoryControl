@@ -7,9 +7,10 @@ using System.Linq.Expressions;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
-using InventoryControl.DAL;
-using InventoryControl.DAL.UnitOfWork;
-using InventoryControl.Models.InventoryItems;
+using InventoryControl.Business.InventoryItem;
+using InventoryControl.Common.Exceptions;
+using InventoryControl.Common.Utilities;
+using InventoryControl.Common.ViewModels.InventoryItems;
 using InventoryControl.Utilities;
 using PagedList;
 
@@ -18,24 +19,23 @@ namespace InventoryControl.Controllers
 	[Authorize]
 	public class InventoryPartsController : BaseController
 	{
-		private readonly UnitOfWork unitOfWork;
+		private readonly InventoryPartManager InventoryPartManager;
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="InventoryPartsController"/> class.
+		/// </summary>
 		public InventoryPartsController()
 		{
-			InventoryContext db = new InventoryContext();
-			this.unitOfWork = new UnitOfWork(db);
+			this.InventoryPartManager = new InventoryPartManager();
 		}
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="InventoryPartsController"/> class.
-		/// Introduced for the purpose of unit testing.
 		/// </summary>
-		/// <param name="unitOfWork">The unit of work.</param>
-		public InventoryPartsController(InventoryContext context)
+		public InventoryPartsController(InventoryPartManager manager)
 		{
-			this.unitOfWork = new UnitOfWork(context);
+			this.InventoryPartManager = manager;
 		}
-
 		// GET: InventoryParts		
 		/// <summary>
 		/// Returns the entire list of inventory items.
@@ -66,35 +66,8 @@ namespace InventoryControl.Controllers
 
 			ViewBag.CurrentFilter = searchString;
 
-			IEnumerable<InventoryPart> InventoryParts = null;
+			IEnumerable<InventoryPartView> InventoryParts = this.InventoryPartManager.GetInventoryParts(sortOrder, searchString);
 
-			switch(sortOrder)
-			{
-				case "name_desc":
-					InventoryParts = this.GetInventoryPartist(searchString, q => q.OrderByDescending(d => d.Name));
-					break;
-				case "unit_price":
-					InventoryParts = this.GetInventoryPartist(searchString, q => q.OrderBy(d => d.UnitPrice));
-					break;
-				case "unit_price_desc":
-					InventoryParts = this.GetInventoryPartist(searchString, q => q.OrderByDescending(d => d.UnitPrice));
-					break;
-				case "reorder_level":
-					InventoryParts = this.GetInventoryPartist(searchString, q => q.OrderBy(d => d.ReorderLevel));
-					break;
-				case "reorder_level_desc":
-					InventoryParts = this.GetInventoryPartist(searchString, q => q.OrderByDescending(d => d.ReorderLevel));
-					break;
-				case "availabel_no_of_units":
-					InventoryParts = this.GetInventoryPartist(searchString, q => q.OrderBy(d => d.AvailabeNoOfUnits));
-					break;
-				case "availabel_no_of_units_desc":
-					InventoryParts = this.GetInventoryPartist(searchString, q => q.OrderByDescending(d => d.AvailabeNoOfUnits));
-					break;
-				default:
-					InventoryParts = this.GetInventoryPartist(searchString, q => q.OrderBy(d => d.Name));
-					break;
-			}
 			return View(InventoryParts.ToPagedList(pageNumber, pageSize));
 		}
 
@@ -111,7 +84,15 @@ namespace InventoryControl.Controllers
 				Log.Error("Input is empty");
 				return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
 			}
-			InventoryPart inventoryPart = this.unitOfWork.InventoryParts.GetByID(id);
+			InventoryPartView inventoryPart = null;
+			try
+			{
+				inventoryPart = this.InventoryPartManager.GetInventoryPartFromId(id);
+			}
+			catch(DatabaseAccessException e)
+			{
+				return new HttpStatusCodeResult(HttpStatusCode.InternalServerError);
+			}
 			if(inventoryPart == null)
 			{
 				Log.Error($"Record for id :{id} not found.");
@@ -138,13 +119,19 @@ namespace InventoryControl.Controllers
 		/// <returns></returns>
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public ActionResult Create([Bind(Include = "ID,Name,AvailabeNoOfUnits,ReorderLevel,UnitPrice")] InventoryPart inventoryPart)
+		public ActionResult Create([Bind(Include = "ID,Name,AvailabeNoOfUnits,ReorderLevel,UnitPrice")] InventoryPartView inventoryPart)
 		{
 			if(ModelState.IsValid)
 			{
-				this.unitOfWork.InventoryParts.Insert(inventoryPart);
-				this.unitOfWork.Commit();
-				return RedirectToAction("Index");
+				try
+				{ 
+					this.InventoryPartManager.InsertInventoryPart(inventoryPart);
+					return RedirectToAction("Index");
+				}
+				catch(DatabaseAccessException e)
+				{
+					return new HttpStatusCodeResult(HttpStatusCode.InternalServerError);
+				}
 			}
 
 			return View(inventoryPart);
@@ -163,13 +150,21 @@ namespace InventoryControl.Controllers
 				Log.Error("Input value is empty.");
 				return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
 			}
-			InventoryPart inventoryPart = this.unitOfWork.InventoryParts.GetByID(id);
-			if(inventoryPart == null)
-			{
-				Log.Error($"Record for id :{id} not found.");
-				return HttpNotFound();
+			InventoryPartView inventoryPart = null;
+			try
+			{ 
+				inventoryPart = this.InventoryPartManager.GetInventoryPartFromId(id);
+				if(inventoryPart == null)
+				{
+					Log.Error($"Record for id :{id} not found.");
+					return HttpNotFound();
+				}
+				return View(inventoryPart);
 			}
-			return View(inventoryPart);
+			catch(DatabaseAccessException e)
+			{
+				return new HttpStatusCodeResult(HttpStatusCode.InternalServerError);
+			}
 		}
 
 		// POST: InventoryParts/Edit/5		
@@ -180,13 +175,19 @@ namespace InventoryControl.Controllers
 		/// <returns></returns>
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public ActionResult Edit([Bind(Include = "ID,Name,AvailabeNoOfUnits,ReorderLevel,UnitPrice")] InventoryPart inventoryPart)
+		public ActionResult Edit([Bind(Include = "ID,Name,AvailabeNoOfUnits,ReorderLevel,UnitPrice")] InventoryPartView inventoryPart)
 		{
 			if(ModelState.IsValid)
 			{
-				this.unitOfWork.InventoryParts.Update(inventoryPart);
-				this.unitOfWork.Commit();
-				return RedirectToAction("Index");
+				try
+				{
+					this.InventoryPartManager.UpdateInventoryPart(inventoryPart);
+					return RedirectToAction("Index");
+				}
+				catch(DatabaseAccessException e)
+				{
+					return new HttpStatusCodeResult(HttpStatusCode.InternalServerError);
+				}
 			}
 			return View(inventoryPart);
 		}
@@ -204,11 +205,19 @@ namespace InventoryControl.Controllers
 				Log.Error("Input value is empty.");
 				return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
 			}
-			InventoryPart inventoryPart = this.unitOfWork.InventoryParts.GetByID(id);
-			if(inventoryPart == null)
+			InventoryPartView inventoryPart = null;
+			try
+			{ 
+				inventoryPart = this.InventoryPartManager.GetInventoryPartFromId(id);
+				if(inventoryPart == null)
+				{
+					Log.Error($"Record for id :{id} not found.");
+					return HttpNotFound();
+				}
+			}
+			catch(DatabaseAccessException e)
 			{
-				Log.Error($"Record for id :{id} not found.");
-				return HttpNotFound();
+				return new HttpStatusCodeResult(HttpStatusCode.InternalServerError);
 			}
 			return View(inventoryPart);
 		}
@@ -223,7 +232,7 @@ namespace InventoryControl.Controllers
 		[ValidateAntiForgeryToken]
 		public ActionResult DeleteConfirmed(int id)
 		{
-			InventoryPart inventoryPart = this.unitOfWork.InventoryParts.GetByID(id);
+			InventoryPartView inventoryPart = this.InventoryPartManager.GetInventoryPartFromId(id);
 			if(inventoryPart == null)
 			{
 				Log.Error($"Record for id :{id} not found.");
@@ -231,38 +240,18 @@ namespace InventoryControl.Controllers
 			}
 			else
 			{
-				this.unitOfWork.InventoryParts.Delete(inventoryPart);
-				this.unitOfWork.Commit();
-				return RedirectToAction("Index");
+				try
+				{
+					this.InventoryPartManager.DeleteInventoryPart(inventoryPart);
+					return RedirectToAction("Index");
+				}
+				catch(DatabaseAccessException e)
+				{
+					return new HttpStatusCodeResult(HttpStatusCode.InternalServerError);
+				}
 			}
 		}
 
-		/// <summary>
-		/// Releases unmanaged resources and optionally releases managed resources.
-		/// </summary>
-		/// <param name="disposing">true to release both managed and unmanaged resources; false to release only unmanaged resources.</param>
-		protected override void Dispose(bool disposing)
-		{
-			if(disposing)
-			{
-				this.unitOfWork.Dispose();
-			}
-			base.Dispose(disposing);
-		}
-
-		private IEnumerable<InventoryPart> GetInventoryPartist(String searchString,
-			Func<IQueryable<InventoryPart>, IOrderedQueryable<InventoryPart>> orderBy = null)
-		{
-			IEnumerable<InventoryPart> InventoryParts = null;
-			if(!String.IsNullOrEmpty(searchString))
-			{
-				InventoryParts = this.unitOfWork.InventoryParts.Get(s => s.Name.Contains(searchString), orderBy: orderBy);
-			}
-			else
-			{
-				InventoryParts = this.unitOfWork.InventoryParts.Get(orderBy: orderBy);
-			}
-			return InventoryParts;
-		}
+		
 	}
 }
