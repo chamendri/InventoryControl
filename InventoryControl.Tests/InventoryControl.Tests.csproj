@@ -108,6 +108,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Business\InventoryPartManagerTest.cs" />
     <Compile Include="Controllers\InventoryPartsControllerTest.cs" />
     <Compile Include="MockData\MockObjectsUtil.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -120,6 +121,22 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\InventoryControl.Business\InventoryControl.Business.csproj">
+      <Project>{405C8B3D-774E-4CC3-8B73-4258B4FEBCA4}</Project>
+      <Name>InventoryControl.Business</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\InventoryControl.Common\InventoryControl.Common.csproj">
+      <Project>{8c841f4e-54fc-439f-9ccb-fe82b4cefdcd}</Project>
+      <Name>InventoryControl.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\InventoryControl.DataAccess\InventoryControl.DataAccess.csproj">
+      <Project>{2fb465be-df50-4143-a99f-469199ad3652}</Project>
+      <Name>InventoryControl.DataAccess</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\InventoryControl.Enities\InventoryControl.Enities.csproj">
+      <Project>{3bd6e39f-e3e5-4c6a-bfa4-ace468bfde5d}</Project>
+      <Name>InventoryControl.Enities</Name>
+    </ProjectReference>
     <ProjectReference Include="..\InventoryControl\InventoryControl.csproj">
       <Project>{07B16D13-2334-465C-8CF8-6EACBDD8340B}</Project>
       <Name>InventoryControl</Name>

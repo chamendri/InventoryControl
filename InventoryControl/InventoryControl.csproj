@@ -188,38 +188,12 @@
     <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\InventoryPartsController.cs" />
-    <Compile Include="DAL\InventoryContext.cs" />
-    <Compile Include="DAL\Repository\BaseRepository.cs" />
-    <Compile Include="DAL\Repository\IRepository.cs" />
-    <Compile Include="DAL\UnitOfWork\IUnitOfWork.cs" />
-    <Compile Include="DAL\UnitOfWork\UnitOfWork.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\202005271251393_InitialCreate.cs" />
-    <Compile Include="Migrations\202005271251393_InitialCreate.designer.cs">
-      <DependentUpon>202005271251393_InitialCreate.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202005281222096_addingValidations.cs" />
-    <Compile Include="Migrations\202005281222096_addingValidations.designer.cs">
-      <DependentUpon>202005281222096_addingValidations.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\Configuration.cs" />
-    <Compile Include="Models\InventoryItems\InventoryPart.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Resources\GlobalRes.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>GlobalRes.resx</DependentUpon>
-    </Compile>
-    <Compile Include="Resources\InventoryRes.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>InventoryRes.resx</DependentUpon>
-    </Compile>
     <Compile Include="Startup.cs" />
     <Compile Include="Utilities\LanguageHelper.cs" />
-    <Compile Include="Utilities\Log.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap-theme.css" />
@@ -283,24 +257,14 @@
     <Content Include="Scripts\jquery-3.3.1.min.map" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\202005271251393_InitialCreate.resx">
-      <DependentUpon>202005271251393_InitialCreate.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202005281222096_addingValidations.resx">
-      <DependentUpon>202005281222096_addingValidations.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Resources\GlobalRes.no.resx" />
-    <EmbeddedResource Include="Resources\GlobalRes.resx">
-      <Generator>PublicResXFileCodeGenerator</Generator>
-      <LastGenOutput>GlobalRes.Designer.cs</LastGenOutput>
-      <CustomToolNamespace>Resources</CustomToolNamespace>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Resources\InventoryRes.no.resx" />
-    <EmbeddedResource Include="Resources\InventoryRes.resx">
-      <Generator>PublicResXFileCodeGenerator</Generator>
-      <LastGenOutput>InventoryRes.Designer.cs</LastGenOutput>
-      <CustomToolNamespace>Resources</CustomToolNamespace>
-    </EmbeddedResource>
+    <ProjectReference Include="..\InventoryControl.Business\InventoryControl.Business.csproj">
+      <Project>{405C8B3D-774E-4CC3-8B73-4258B4FEBCA4}</Project>
+      <Name>InventoryControl.Business</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\InventoryControl.Common\InventoryControl.Common.csproj">
+      <Project>{8c841f4e-54fc-439f-9ccb-fe82b4cefdcd}</Project>
+      <Name>InventoryControl.Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

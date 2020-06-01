@@ -4,9 +4,10 @@ using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
+using InventoryControl.Business.InventoryItem;
+using InventoryControl.Common.ViewModels.InventoryItems;
 using InventoryControl.Controllers;
 using InventoryControl.DAL;
-using InventoryControl.Models.InventoryItems;
 using InventoryControl.Tests.MockData;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -20,37 +21,23 @@ namespace InventoryControl.Tests.Controllers
 		[TestMethod]
 		public void TestIndex_whenItemsExists()
 		{
-			Mock<InventoryContext> mockDbContext = new Mock<InventoryContext>();
-			List<InventoryPart> data = new List<InventoryPart>() { MockObjectsUtil.GetMockInventoryPart(1) };
-			Mock<DbSet<InventoryPart>> mockSet = new Mock<DbSet<InventoryPart>>();
-			mockSet.As<IQueryable<InventoryPart>>().Setup(m => m.GetEnumerator()).Returns(data.GetEnumerator());
-
-			mockDbContext.Setup(x => x.Set<InventoryPart>()).Returns(mockSet.Object);
-			mockDbContext.Setup(c => c.InventoryParts).Returns(mockSet.Object);
-
-			InventoryPartsController controller 
-				= new InventoryPartsController(mockDbContext.Object);
+			List<InventoryPartView> data = new List<InventoryPartView>() { MockObjectsUtil.GetMockInventoryPartView(1) };
+			Mock<InventoryPartManager> mockManager = new Mock<InventoryPartManager>();
+			mockManager.Setup(x => x.GetInventoryParts(It.IsAny<string>(), It.IsAny<string>())).Returns(data);
+			InventoryPartsController controller = new InventoryPartsController(mockManager.Object);
 			ViewResult result = controller.Index("name_desc", "", "", null) as ViewResult;
 			Assert.IsNotNull(result);
-			Assert.AreEqual(1, ((List<InventoryPart>) result.Model).Count);
 		}
 
 		[TestMethod]
 		public void TestIndex_whenItemsNotExists()
 		{
-			Mock<InventoryContext> mockDbContext = new Mock<InventoryContext>();
-			List<InventoryPart> data = new List<InventoryPart>();
-			Mock<DbSet<InventoryPart>> mockSet = new Mock<DbSet<InventoryPart>>();
-			mockSet.As<IQueryable<InventoryPart>>().Setup(m => m.GetEnumerator()).Returns(data.GetEnumerator());
-
-			mockDbContext.Setup(x => x.Set<InventoryPart>()).Returns(mockSet.Object);
-			mockDbContext.Setup(c => c.InventoryParts).Returns(mockSet.Object);
-
-			InventoryPartsController controller
-				= new InventoryPartsController(mockDbContext.Object);
+			List<InventoryPartView> data = new List<InventoryPartView>() { MockObjectsUtil.GetMockInventoryPartView(1) };
+			Mock<InventoryPartManager> mockManager = new Mock<InventoryPartManager>();
+			mockManager.Setup(x => x.GetInventoryParts(It.IsAny<string>(), It.IsAny<string>())).Returns(data);
+			InventoryPartsController controller = new InventoryPartsController(mockManager.Object);
 			ViewResult result = controller.Index("name_desc", "", "", null) as ViewResult;
 			Assert.IsNotNull(result);
-			Assert.AreEqual(0, ((List<InventoryPart>) result.Model).Count);
 		}
 		#endregion
 
@@ -58,52 +45,25 @@ namespace InventoryControl.Tests.Controllers
 		[TestMethod]
 		public void TestDetails_WhenItemExists()
 		{
-			InventoryPart expectedObject = MockObjectsUtil.GetMockInventoryPart(1);
-			Mock<InventoryContext> mockDbContext = new Mock<InventoryContext>();
-			List<InventoryPart> data = new List<InventoryPart>() { expectedObject };
-			Mock<DbSet<InventoryPart>> mockSet = new Mock<DbSet<InventoryPart>>();
-			mockSet.As<IQueryable<InventoryPart>>().Setup(m => m.GetEnumerator()).Returns(data.GetEnumerator());
-			mockSet.As<IQueryable<InventoryPart>>().Setup(m => m.Provider)
-				.Returns(data.AsQueryable().Provider);
-			mockSet.As<IQueryable<InventoryPart>>().Setup(m => m.Expression)
-				.Returns(data.AsQueryable().Expression);
-			mockSet.As<IQueryable<InventoryPart>>().Setup(m => m.ElementType)
-				.Returns(data.AsQueryable().ElementType);
-			mockSet.Setup(m => m.Find(It.IsAny<object[]>()))
-				.Returns<object[]>(ids => data.FirstOrDefault(d => d.ID == (int) ids[0]));
-
-			mockDbContext.Setup(x => x.Set<InventoryPart>()).Returns(mockSet.Object);
-			mockDbContext.Setup(c => c.InventoryParts).Returns(mockSet.Object);
-
-			InventoryPartsController controller
-				= new InventoryPartsController(mockDbContext.Object);
+			InventoryPartView expectedObject = MockObjectsUtil.GetMockInventoryPartView(1);
+			List<InventoryPartView> data = new List<InventoryPartView>() { MockObjectsUtil.GetMockInventoryPartView(1) };
+			Mock<InventoryPartManager> mockManager = new Mock<InventoryPartManager>();
+			mockManager.Setup(x => x.GetInventoryPartFromId(It.IsAny<int?>())).Returns(expectedObject);
+			InventoryPartsController controller = new InventoryPartsController(mockManager.Object);
 			ViewResult result = controller.Details(1) as ViewResult;
 			Assert.IsNotNull(result);
-			InventoryPart actualObject = (InventoryPart)result.Model;
+			InventoryPartView actualObject = (InventoryPartView) result.Model;
 			Assert.AreEqual(expectedObject.ID, actualObject.ID);
 		}
 
 		[TestMethod]
 		public void TestDetails_WhenItemNotExists()
 		{
-			Mock<InventoryContext> mockDbContext = new Mock<InventoryContext>();
-			List<InventoryPart> data = new List<InventoryPart>() { MockObjectsUtil.GetMockInventoryPart(1) };
-			Mock<DbSet<InventoryPart>> mockSet = new Mock<DbSet<InventoryPart>>();
-			mockSet.As<IQueryable<InventoryPart>>().Setup(m => m.GetEnumerator()).Returns(data.GetEnumerator());
-			mockSet.As<IQueryable<InventoryPart>>().Setup(m => m.Provider)
-				.Returns(data.AsQueryable().Provider);
-			mockSet.As<IQueryable<InventoryPart>>().Setup(m => m.Expression)
-				.Returns(data.AsQueryable().Expression);
-			mockSet.As<IQueryable<InventoryPart>>().Setup(m => m.ElementType)
-				.Returns(data.AsQueryable().ElementType);
-			mockSet.Setup(m => m.Find(It.IsAny<object[]>()))
-				.Returns<object[]>(ids => data.FirstOrDefault(d => d.ID == (int) ids[0]));
-
-			mockDbContext.Setup(x => x.Set<InventoryPart>()).Returns(mockSet.Object);
-			mockDbContext.Setup(c => c.InventoryParts).Returns(mockSet.Object);
-
-			InventoryPartsController controller
-				= new InventoryPartsController(mockDbContext.Object);
+			InventoryPartView expectedObject = null;
+			List<InventoryPartView> data = new List<InventoryPartView>() { MockObjectsUtil.GetMockInventoryPartView(1) };
+			Mock<InventoryPartManager> mockManager = new Mock<InventoryPartManager>();
+			mockManager.Setup(x => x.GetInventoryPartFromId(It.IsAny<int?>())).Returns(expectedObject);
+			InventoryPartsController controller = new InventoryPartsController(mockManager.Object);
 			ViewResult result = controller.Details(2) as ViewResult;
 			Assert.IsNull(result);
 		}
@@ -111,24 +71,11 @@ namespace InventoryControl.Tests.Controllers
 		[TestMethod]
 		public void TestDetails_WhenIdIsNull()
 		{
-			Mock<InventoryContext> mockDbContext = new Mock<InventoryContext>();
-			List<InventoryPart> data = new List<InventoryPart>() { MockObjectsUtil.GetMockInventoryPart(1) };
-			Mock<DbSet<InventoryPart>> mockSet = new Mock<DbSet<InventoryPart>>();
-			mockSet.As<IQueryable<InventoryPart>>().Setup(m => m.GetEnumerator()).Returns(data.GetEnumerator());
-			mockSet.As<IQueryable<InventoryPart>>().Setup(m => m.Provider)
-				.Returns(data.AsQueryable().Provider);
-			mockSet.As<IQueryable<InventoryPart>>().Setup(m => m.Expression)
-				.Returns(data.AsQueryable().Expression);
-			mockSet.As<IQueryable<InventoryPart>>().Setup(m => m.ElementType)
-				.Returns(data.AsQueryable().ElementType);
-			mockSet.Setup(m => m.Find(It.IsAny<object[]>()))
-				.Returns<object[]>(ids => data.FirstOrDefault(d => d.ID == (int) ids[0]));
-
-			mockDbContext.Setup(x => x.Set<InventoryPart>()).Returns(mockSet.Object);
-			mockDbContext.Setup(c => c.InventoryParts).Returns(mockSet.Object);
-
-			InventoryPartsController controller
-				= new InventoryPartsController(mockDbContext.Object);
+			InventoryPartView expectedObject = MockObjectsUtil.GetMockInventoryPartView(1);
+			List<InventoryPartView> data = new List<InventoryPartView>() { MockObjectsUtil.GetMockInventoryPartView(1) };
+			Mock<InventoryPartManager> mockManager = new Mock<InventoryPartManager>();
+			mockManager.Setup(x => x.GetInventoryPartFromId(It.IsAny<int?>())).Returns(expectedObject);
+			InventoryPartsController controller = new InventoryPartsController(mockManager.Object);
 			HttpStatusCodeResult result = controller.Details(null) as HttpStatusCodeResult;
 			Assert.AreEqual(400, result.StatusCode);
 		}
@@ -138,16 +85,11 @@ namespace InventoryControl.Tests.Controllers
 		[TestMethod]
 		public void TestCreate_EmptyParameter()
 		{
-			Mock<InventoryContext> mockDbContext = new Mock<InventoryContext>();
-			List<InventoryPart> data = new List<InventoryPart>() { MockObjectsUtil.GetMockInventoryPart(1) };
-			Mock<DbSet<InventoryPart>> mockSet = new Mock<DbSet<InventoryPart>>();
-			mockSet.As<IQueryable<InventoryPart>>().Setup(m => m.GetEnumerator()).Returns(data.GetEnumerator());
-
-			mockDbContext.Setup(x => x.Set<InventoryPart>()).Returns(mockSet.Object);
-			mockDbContext.Setup(c => c.InventoryParts).Returns(mockSet.Object);
-
-			InventoryPartsController controller
-				= new InventoryPartsController(mockDbContext.Object);
+			InventoryPartView expectedObject = MockObjectsUtil.GetMockInventoryPartView(1);
+			List<InventoryPartView> data = new List<InventoryPartView>() { MockObjectsUtil.GetMockInventoryPartView(1) };
+			Mock<InventoryPartManager> mockManager = new Mock<InventoryPartManager>();
+			mockManager.Setup(x => x.InsertInventoryPart(It.IsAny<InventoryPartView>()));
+			InventoryPartsController controller = new InventoryPartsController(mockManager.Object);
 			ViewResult result = controller.Create() as ViewResult;
 			Assert.IsNotNull(result);
 			Assert.IsNull(result.Model);
@@ -156,15 +98,7 @@ namespace InventoryControl.Tests.Controllers
 		[TestMethod]
 		public void TestCreate_WithParameters()
 		{
-			Mock<InventoryContext> mockDbContext = new Mock<InventoryContext>();
-			List<InventoryPart> data = new List<InventoryPart>() { MockObjectsUtil.GetMockInventoryPart(1) };
-			Mock<DbSet<InventoryPart>> mockSet = new Mock<DbSet<InventoryPart>>();
-			mockSet.As<IQueryable<InventoryPart>>().Setup(m => m.GetEnumerator()).Returns(data.GetEnumerator());
-
-			mockDbContext.Setup(x => x.Set<InventoryPart>()).Returns(mockSet.Object);
-			mockDbContext.Setup(c => c.InventoryParts).Returns(mockSet.Object);
-
-			InventoryPart inputObject = new InventoryPart()
+			InventoryPartView inputObject = new InventoryPartView()
 			{
 				ID = 2,
 				Name = "test 2",
@@ -172,8 +106,11 @@ namespace InventoryControl.Tests.Controllers
 				AvailabeNoOfUnits = 100,
 				UnitPrice = 10
 			};
-			InventoryPartsController controller
-				= new InventoryPartsController(mockDbContext.Object);
+			InventoryPartView expectedObject = MockObjectsUtil.GetMockInventoryPartView(1);
+			List<InventoryPartView> data = new List<InventoryPartView>() { MockObjectsUtil.GetMockInventoryPartView(1) };
+			Mock<InventoryPartManager> mockManager = new Mock<InventoryPartManager>();
+			mockManager.Setup(x => x.InsertInventoryPart(It.IsAny<InventoryPartView>()));
+			InventoryPartsController controller = new InventoryPartsController(mockManager.Object);
 			ViewResult result = controller.Create(inputObject) as ViewResult;
 			Assert.IsNull(result);
 		}
@@ -183,52 +120,26 @@ namespace InventoryControl.Tests.Controllers
 		[TestMethod]
 		public void TestEdit_WhenItemExists()
 		{
-			InventoryPart expectedObject = MockObjectsUtil.GetMockInventoryPart(1);
-			Mock<InventoryContext> mockDbContext = new Mock<InventoryContext>();
-			List<InventoryPart> data = new List<InventoryPart>() { expectedObject };
-			Mock<DbSet<InventoryPart>> mockSet = new Mock<DbSet<InventoryPart>>();
-			mockSet.As<IQueryable<InventoryPart>>().Setup(m => m.GetEnumerator()).Returns(data.GetEnumerator());
-			mockSet.As<IQueryable<InventoryPart>>().Setup(m => m.Provider)
-				.Returns(data.AsQueryable().Provider);
-			mockSet.As<IQueryable<InventoryPart>>().Setup(m => m.Expression)
-				.Returns(data.AsQueryable().Expression);
-			mockSet.As<IQueryable<InventoryPart>>().Setup(m => m.ElementType)
-				.Returns(data.AsQueryable().ElementType);
-			mockSet.Setup(m => m.Find(It.IsAny<object[]>()))
-				.Returns<object[]>(ids => data.FirstOrDefault(d => d.ID == (int) ids[0]));
-
-			mockDbContext.Setup(x => x.Set<InventoryPart>()).Returns(mockSet.Object);
-			mockDbContext.Setup(c => c.InventoryParts).Returns(mockSet.Object);
-
-			InventoryPartsController controller
-				= new InventoryPartsController(mockDbContext.Object);
+			InventoryPartView expectedObject = MockObjectsUtil.GetMockInventoryPartView(1);
+			List<InventoryPartView> data = new List<InventoryPartView>() { MockObjectsUtil.GetMockInventoryPartView(1) };
+			Mock<InventoryPartManager> mockManager = new Mock<InventoryPartManager>();
+			mockManager.Setup(x => x.UpdateInventoryPart(It.IsAny<InventoryPartView>()));
+			mockManager.Setup(x => x.GetInventoryPartFromId(It.IsAny<int?>())).Returns(expectedObject);
+			InventoryPartsController controller = new InventoryPartsController(mockManager.Object);
 			ViewResult result = controller.Edit(1) as ViewResult;
 			Assert.IsNotNull(result);
-			InventoryPart actualObject = (InventoryPart) result.Model;
+			InventoryPartView actualObject = (InventoryPartView) result.Model;
 			Assert.AreEqual(expectedObject.ID, actualObject.ID);
 		}
 
 		[TestMethod]
 		public void TestEdit_WhenItemNotExists()
 		{
-			Mock<InventoryContext> mockDbContext = new Mock<InventoryContext>();
-			List<InventoryPart> data = new List<InventoryPart>() { MockObjectsUtil.GetMockInventoryPart(1) };
-			Mock<DbSet<InventoryPart>> mockSet = new Mock<DbSet<InventoryPart>>();
-			mockSet.As<IQueryable<InventoryPart>>().Setup(m => m.GetEnumerator()).Returns(data.GetEnumerator());
-			mockSet.As<IQueryable<InventoryPart>>().Setup(m => m.Provider)
-				.Returns(data.AsQueryable().Provider);
-			mockSet.As<IQueryable<InventoryPart>>().Setup(m => m.Expression)
-				.Returns(data.AsQueryable().Expression);
-			mockSet.As<IQueryable<InventoryPart>>().Setup(m => m.ElementType)
-				.Returns(data.AsQueryable().ElementType);
-			mockSet.Setup(m => m.Find(It.IsAny<object[]>()))
-				.Returns<object[]>(ids => data.FirstOrDefault(d => d.ID == (int) ids[0]));
-
-			mockDbContext.Setup(x => x.Set<InventoryPart>()).Returns(mockSet.Object);
-			mockDbContext.Setup(c => c.InventoryParts).Returns(mockSet.Object);
-
-			InventoryPartsController controller
-				= new InventoryPartsController(mockDbContext.Object);
+			InventoryPartView expectedObject = MockObjectsUtil.GetMockInventoryPartView(1);
+			List<InventoryPartView> data = new List<InventoryPartView>() { MockObjectsUtil.GetMockInventoryPartView(1) };
+			Mock<InventoryPartManager> mockManager = new Mock<InventoryPartManager>();
+			mockManager.Setup(x => x.UpdateInventoryPart(It.IsAny<InventoryPartView>()));
+			InventoryPartsController controller = new InventoryPartsController(mockManager.Object);
 			ViewResult result = controller.Edit(2) as ViewResult;
 			Assert.IsNull(result);
 		}
@@ -236,32 +147,19 @@ namespace InventoryControl.Tests.Controllers
 		[TestMethod]
 		public void TestEdit_WhenIdIsNull()
 		{
-			Mock<InventoryContext> mockDbContext = new Mock<InventoryContext>();
-			List<InventoryPart> data = new List<InventoryPart>() { MockObjectsUtil.GetMockInventoryPart(1) };
-			Mock<DbSet<InventoryPart>> mockSet = new Mock<DbSet<InventoryPart>>();
-			mockSet.As<IQueryable<InventoryPart>>().Setup(m => m.GetEnumerator()).Returns(data.GetEnumerator());
-			mockSet.As<IQueryable<InventoryPart>>().Setup(m => m.Provider)
-				.Returns(data.AsQueryable().Provider);
-			mockSet.As<IQueryable<InventoryPart>>().Setup(m => m.Expression)
-				.Returns(data.AsQueryable().Expression);
-			mockSet.As<IQueryable<InventoryPart>>().Setup(m => m.ElementType)
-				.Returns(data.AsQueryable().ElementType);
-			mockSet.Setup(m => m.Find(It.IsAny<object[]>()))
-				.Returns<object[]>(ids => data.FirstOrDefault(d => d.ID == (int) ids[0]));
-
-			mockDbContext.Setup(x => x.Set<InventoryPart>()).Returns(mockSet.Object);
-			mockDbContext.Setup(c => c.InventoryParts).Returns(mockSet.Object);
-
-			InventoryPartsController controller
-				= new InventoryPartsController(mockDbContext.Object);
-			HttpStatusCodeResult result = controller.Edit((int?)null) as HttpStatusCodeResult;
+			InventoryPartView expectedObject = MockObjectsUtil.GetMockInventoryPartView(1);
+			List<InventoryPartView> data = new List<InventoryPartView>() { MockObjectsUtil.GetMockInventoryPartView(1) };
+			Mock<InventoryPartManager> mockManager = new Mock<InventoryPartManager>();
+			mockManager.Setup(x => x.UpdateInventoryPart(It.IsAny<InventoryPartView>()));
+			InventoryPartsController controller = new InventoryPartsController(mockManager.Object);
+			HttpStatusCodeResult result = controller.Edit((int?) null) as HttpStatusCodeResult;
 			Assert.AreEqual(400, result.StatusCode);
 		}
 
 		[TestMethod]
 		public void TestEdit_WithParameter()
 		{
-			InventoryPart inputObject = new InventoryPart()
+			InventoryPartView inputObject = new InventoryPartView()
 			{
 				ID = 2,
 				Name = "test 2",
@@ -270,16 +168,11 @@ namespace InventoryControl.Tests.Controllers
 				UnitPrice = 10
 			};
 
-			Mock<InventoryContext> mockDbContext = new Mock<InventoryContext>();
-			List<InventoryPart> data = new List<InventoryPart>() { MockObjectsUtil.GetMockInventoryPart(1) };
-			Mock<DbSet<InventoryPart>> mockSet = new Mock<DbSet<InventoryPart>>();
-			mockSet.As<IQueryable<InventoryPart>>().Setup(m => m.GetEnumerator()).Returns(data.GetEnumerator());
-
-			mockDbContext.Setup(x => x.Set<InventoryPart>()).Returns(mockSet.Object);
-			mockDbContext.Setup(c => c.InventoryParts).Returns(mockSet.Object);
-
-			InventoryPartsController controller
-				= new InventoryPartsController(mockDbContext.Object);
+			InventoryPartView expectedObject = MockObjectsUtil.GetMockInventoryPartView(1);
+			List<InventoryPartView> data = new List<InventoryPartView>() { MockObjectsUtil.GetMockInventoryPartView(1) };
+			Mock<InventoryPartManager> mockManager = new Mock<InventoryPartManager>();
+			mockManager.Setup(x => x.UpdateInventoryPart(It.IsAny<InventoryPartView>()));
+			InventoryPartsController controller = new InventoryPartsController(mockManager.Object);
 			ViewResult result = controller.Edit(inputObject) as ViewResult;
 			Assert.IsNull(result);
 		}
@@ -289,52 +182,25 @@ namespace InventoryControl.Tests.Controllers
 		[TestMethod]
 		public void TestDelete_WhenItemExists()
 		{
-			InventoryPart expectedObject = MockObjectsUtil.GetMockInventoryPart(1);
-			Mock<InventoryContext> mockDbContext = new Mock<InventoryContext>();
-			List<InventoryPart> data = new List<InventoryPart>() { expectedObject };
-			Mock<DbSet<InventoryPart>> mockSet = new Mock<DbSet<InventoryPart>>();
-			mockSet.As<IQueryable<InventoryPart>>().Setup(m => m.GetEnumerator()).Returns(data.GetEnumerator());
-			mockSet.As<IQueryable<InventoryPart>>().Setup(m => m.Provider)
-				.Returns(data.AsQueryable().Provider);
-			mockSet.As<IQueryable<InventoryPart>>().Setup(m => m.Expression)
-				.Returns(data.AsQueryable().Expression);
-			mockSet.As<IQueryable<InventoryPart>>().Setup(m => m.ElementType)
-				.Returns(data.AsQueryable().ElementType);
-			mockSet.Setup(m => m.Find(It.IsAny<object[]>()))
-				.Returns<object[]>(ids => data.FirstOrDefault(d => d.ID == (int) ids[0]));
-
-			mockDbContext.Setup(x => x.Set<InventoryPart>()).Returns(mockSet.Object);
-			mockDbContext.Setup(c => c.InventoryParts).Returns(mockSet.Object);
-
-			InventoryPartsController controller
-				= new InventoryPartsController(mockDbContext.Object);
+			InventoryPartView expectedObject = MockObjectsUtil.GetMockInventoryPartView(1);
+			List<InventoryPartView> data = new List<InventoryPartView>() { MockObjectsUtil.GetMockInventoryPartView(1) };
+			Mock<InventoryPartManager> mockManager = new Mock<InventoryPartManager>();
+			mockManager.Setup(x => x.DeleteInventoryPart(It.IsAny<InventoryPartView>()));
+			mockManager.Setup(x => x.GetInventoryPartFromId(It.IsAny<int?>())).Returns(expectedObject);
+			InventoryPartsController controller = new InventoryPartsController(mockManager.Object);
 			ViewResult result = controller.Delete(1) as ViewResult;
 			Assert.IsNotNull(result);
-			InventoryPart actualObject = (InventoryPart) result.Model;
+			InventoryPartView actualObject = (InventoryPartView) result.Model;
 			Assert.AreEqual(expectedObject.ID, actualObject.ID);
 		}
 
 		[TestMethod]
 		public void TestDelete_WhenItemNotExists()
 		{
-			Mock<InventoryContext> mockDbContext = new Mock<InventoryContext>();
-			List<InventoryPart> data = new List<InventoryPart>() { MockObjectsUtil.GetMockInventoryPart(1) };
-			Mock<DbSet<InventoryPart>> mockSet = new Mock<DbSet<InventoryPart>>();
-			mockSet.As<IQueryable<InventoryPart>>().Setup(m => m.GetEnumerator()).Returns(data.GetEnumerator());
-			mockSet.As<IQueryable<InventoryPart>>().Setup(m => m.Provider)
-				.Returns(data.AsQueryable().Provider);
-			mockSet.As<IQueryable<InventoryPart>>().Setup(m => m.Expression)
-				.Returns(data.AsQueryable().Expression);
-			mockSet.As<IQueryable<InventoryPart>>().Setup(m => m.ElementType)
-				.Returns(data.AsQueryable().ElementType);
-			mockSet.Setup(m => m.Find(It.IsAny<object[]>()))
-				.Returns<object[]>(ids => data.FirstOrDefault(d => d.ID == (int) ids[0]));
-
-			mockDbContext.Setup(x => x.Set<InventoryPart>()).Returns(mockSet.Object);
-			mockDbContext.Setup(c => c.InventoryParts).Returns(mockSet.Object);
-
-			InventoryPartsController controller
-				= new InventoryPartsController(mockDbContext.Object);
+			List<InventoryPartView> data = new List<InventoryPartView>() { MockObjectsUtil.GetMockInventoryPartView(1) };
+			Mock<InventoryPartManager> mockManager = new Mock<InventoryPartManager>();
+			mockManager.Setup(x => x.DeleteInventoryPart(It.IsAny<InventoryPartView>()));
+			InventoryPartsController controller = new InventoryPartsController(mockManager.Object);
 			ViewResult result = controller.Delete(2) as ViewResult;
 			Assert.IsNull(result);
 		}
@@ -342,24 +208,10 @@ namespace InventoryControl.Tests.Controllers
 		[TestMethod]
 		public void TestDelete_WhenIdIsNull()
 		{
-			Mock<InventoryContext> mockDbContext = new Mock<InventoryContext>();
-			List<InventoryPart> data = new List<InventoryPart>() { MockObjectsUtil.GetMockInventoryPart(1) };
-			Mock<DbSet<InventoryPart>> mockSet = new Mock<DbSet<InventoryPart>>();
-			mockSet.As<IQueryable<InventoryPart>>().Setup(m => m.GetEnumerator()).Returns(data.GetEnumerator());
-			mockSet.As<IQueryable<InventoryPart>>().Setup(m => m.Provider)
-				.Returns(data.AsQueryable().Provider);
-			mockSet.As<IQueryable<InventoryPart>>().Setup(m => m.Expression)
-				.Returns(data.AsQueryable().Expression);
-			mockSet.As<IQueryable<InventoryPart>>().Setup(m => m.ElementType)
-				.Returns(data.AsQueryable().ElementType);
-			mockSet.Setup(m => m.Find(It.IsAny<object[]>()))
-				.Returns<object[]>(ids => data.FirstOrDefault(d => d.ID == (int) ids[0]));
-
-			mockDbContext.Setup(x => x.Set<InventoryPart>()).Returns(mockSet.Object);
-			mockDbContext.Setup(c => c.InventoryParts).Returns(mockSet.Object);
-
-			InventoryPartsController controller
-				= new InventoryPartsController(mockDbContext.Object);
+			List<InventoryPartView> data = new List<InventoryPartView>() { MockObjectsUtil.GetMockInventoryPartView(1) };
+			Mock<InventoryPartManager> mockManager = new Mock<InventoryPartManager>();
+			mockManager.Setup(x => x.DeleteInventoryPart(It.IsAny<InventoryPartView>()));
+			InventoryPartsController controller = new InventoryPartsController(mockManager.Object);
 			HttpStatusCodeResult result = controller.Delete((int?) null) as HttpStatusCodeResult;
 			Assert.AreEqual(400, result.StatusCode);
 		}
@@ -369,18 +221,10 @@ namespace InventoryControl.Tests.Controllers
 		[TestMethod]
 		public void TestDeleteConfirmed_ItemExists()
 		{
-			Mock<InventoryContext> mockDbContext = new Mock<InventoryContext>();
-			List<InventoryPart> data = new List<InventoryPart>() { MockObjectsUtil.GetMockInventoryPart(1) };
-			Mock<DbSet<InventoryPart>> mockSet = new Mock<DbSet<InventoryPart>>();
-			mockSet.As<IQueryable<InventoryPart>>().Setup(m => m.GetEnumerator()).Returns(data.GetEnumerator());
-
-			mockDbContext.Setup(x => x.Set<InventoryPart>()).Returns(mockSet.Object);
-			mockDbContext.Setup(c => c.InventoryParts).Returns(mockSet.Object);
-			mockSet.Setup(m => m.Find(It.IsAny<object[]>()))
-				.Returns<object[]>(ids => data.FirstOrDefault(d => d.ID == (int) ids[0]));
-
-			InventoryPartsController controller
-				= new InventoryPartsController(mockDbContext.Object);
+			List<InventoryPartView> data = new List<InventoryPartView>() { MockObjectsUtil.GetMockInventoryPartView(1) };
+			Mock<InventoryPartManager> mockManager = new Mock<InventoryPartManager>();
+			mockManager.Setup(x => x.DeleteInventoryPart(It.IsAny<InventoryPartView>()));
+			InventoryPartsController controller = new InventoryPartsController(mockManager.Object);
 			ViewResult result = controller.DeleteConfirmed(1) as ViewResult;
 			Assert.IsNull(result);
 		}
@@ -388,18 +232,10 @@ namespace InventoryControl.Tests.Controllers
 		[TestMethod]
 		public void TestDeleteConfirmed_ItemDoesNotExists()
 		{
-			Mock<InventoryContext> mockDbContext = new Mock<InventoryContext>();
-			List<InventoryPart> data = new List<InventoryPart>() { MockObjectsUtil.GetMockInventoryPart(1) };
-			Mock<DbSet<InventoryPart>> mockSet = new Mock<DbSet<InventoryPart>>();
-			mockSet.As<IQueryable<InventoryPart>>().Setup(m => m.GetEnumerator()).Returns(data.GetEnumerator());
-
-			mockDbContext.Setup(x => x.Set<InventoryPart>()).Returns(mockSet.Object);
-			mockDbContext.Setup(c => c.InventoryParts).Returns(mockSet.Object);
-			mockSet.Setup(m => m.Find(It.IsAny<object[]>()))
-				.Returns<object[]>(ids => data.FirstOrDefault(d => d.ID == (int) ids[0]));
-
-			InventoryPartsController controller
-				= new InventoryPartsController(mockDbContext.Object);
+			List<InventoryPartView> data = new List<InventoryPartView>() { MockObjectsUtil.GetMockInventoryPartView(1) };
+			Mock<InventoryPartManager> mockManager = new Mock<InventoryPartManager>();
+			mockManager.Setup(x => x.DeleteInventoryPart(It.IsAny<InventoryPartView>()));
+			InventoryPartsController controller = new InventoryPartsController(mockManager.Object);
 			ViewResult result = controller.DeleteConfirmed(2) as ViewResult;
 			Assert.IsNull(result);
 		}
